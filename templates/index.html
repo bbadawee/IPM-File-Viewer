@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPM Viewer Pro</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Header -->
+        <header class="glass-header">
+            <div class="logo">
+                <i data-feather="database" class="logo-icon"></i>
+                <h1>IPM Viewer <span>Pro</span></h1>
+            </div>
+            
+            <div class="upload-section">
+                <div id="drop-zone" class="drop-zone">
+                    <i data-feather="upload-cloud" class="upload-icon"></i>
+                    <p>Drag & Drop your IPM/DAT file here</p>
+                    <span class="or">or</span>
+                    <button class="btn-primary" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                    <input type="file" id="file-input" hidden accept=".ipm,.dat">
+                </div>
+                
+                <div id="loading-state" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Parsing File...</p>
+                </div>
+            </div>
+            
+            <div class="stats-section hidden" id="stats-panel">
+                <div class="stat-card">
+                    <span class="stat-label">File</span>
+                    <span class="stat-value" id="stat-filename">-</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Records</span>
+                    <span class="stat-value highlight" id="stat-count">0</span>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters-section hidden" id="filters-panel">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <label>MTI</label>
+                    <select id="filter-mti">
+                        <option value="All">All</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div id="welcome-message" class="empty-state">
+                <div class="empty-icon-wrap">
+                    <i data-feather="file-text"></i>
+                </div>
+                <h2>No File Loaded</h2>
+                <p>Upload a MasterCard IPM or clearing file to view parsed data.</p>
+            </div>
+            
+            <!-- Validation Report Panel -->
+            <div id="validation-panel" class="glass-panel validation-report hidden">
+                <div class="validation-header">
+                    <div class="validation-title">
+                        <i id="validation-icon" data-feather="check-circle"></i>
+                        <h2 id="validation-heading">Data Integrity Passed</h2>
+                    </div>
+                    <button class="btn-icon" id="toggle-validation">
+                        <i data-feather="chevron-down"></i>
+                    </button>
+                </div>
+                <div id="validation-content" class="validation-content hidden">
+                    <ul id="validation-errors-list">
+                        <!-- Errors injected by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div id="table-container" class="glass-panel hidden">
+                <div class="table-header">
+                    <h2>Transactions</h2>
+                    <div class="search-box">
+                        <i data-feather="search"></i>
+                        <input type="text" id="search-input" placeholder="Search PAN or RRN...">
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th width="40"></th>
+                                <th>MTI/Func</th>
+                                <th>PAN (DE2)</th>
+                                <th>Amount (DE4)</th>
+                                <th>Date/Time</th>
+                                <th>RRN (DE37)</th>
+                                <th>Auth (DE38)</th>
+                                <th>Merchant</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <button class="btn-icon" id="page-prev" disabled><i data-feather="chevron-left"></i></button>
+                    <span id="page-info">Page 1 of 1</span>
+                    <button class="btn-icon" id="page-next" disabled><i data-feather="chevron-right"></i></button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="details-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Record Details</h2>
+                <button class="btn-icon close-modal"><i data-feather="x"></i></button>
+            </div>
+            <div class="modal-body" id="modal-details-body">
+                <!-- Rich details injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
