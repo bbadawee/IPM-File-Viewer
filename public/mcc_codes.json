@@ -1,0 +1,20 @@
+{
+  "5411": { "name": "Grocery Stores & Supermarkets", "category": "Groceries", "icon": "shopping-cart" },
+  "5541": { "name": "Service Stations (Gasoline)", "category": "Transportation", "icon": "fuel" },
+  "5542": { "name": "Automated Fuel Dispensers", "category": "Transportation", "icon": "fuel" },
+  "5812": { "name": "Eating Places, Restaurants", "category": "Dining", "icon": "utensils" },
+  "5813": { "name": "Drinking Places (Alcoholic Beverages)", "category": "Dining", "icon": "wine-glass" },
+  "5814": { "name": "Fast Food Restaurants", "category": "Dining", "icon": "utensils" },
+  "5912": { "name": "Drug Stores & Pharmacies", "category": "Medical", "icon": "pill" },
+  "5983": { "name": "Fuel Dealers (Coal, Wood, Oil)", "category": "Transportation", "icon": "flame" },
+  "5999": { "name": "Miscellaneous Specialty Retail", "category": "Shopping", "icon": "shopping-bag" },
+  "6011": { "name": "Automated Cash Disbursers (ATM)", "category": "Finance", "icon": "dollar-sign" },
+  "6012": { "name": "Financial Institutions (Merchandise/Services)", "category": "Finance", "icon": "landmark" },
+  "5311": { "name": "Department Stores", "category": "Shopping", "icon": "shopping-bag" },
+  "4111": { "name": "Local Passenger Transportation", "category": "Transportation", "icon": "bus" },
+  "4121": { "name": "Taxicabs & Limousines", "category": "Transportation", "icon": "car" },
+  "4722": { "name": "Travel Agencies & Tour Operators", "category": "Travel", "icon": "plane" },
+  "7011": { "name": "Hotels, Motels & Resorts", "category": "Travel", "icon": "hotel" },
+  "7997": { "name": "Membership Clubs (Sports, Recreation)", "category": "Entertainment", "icon": "activity" },
+  "7999": { "name": "Recreation Services (Not Elsewhere Classified)", "category": "Entertainment", "icon": "ticket" }
+}

@@ -1,0 +1,24 @@
+# Python bytecode & cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+
+# Node/Express server artifacts
+node_modules/
+uploads/
+sample.json
+
+# Local environment & IDE files
+.vscode/
+.idea/
+.venv/
+venv/
+env/
+.DS_Store
+Thumbs.db

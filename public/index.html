@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPM Clearing File Viewer</title>
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="chip-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+            <line x1="12" y1="4" x2="12" y2="20"></line>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <circle cx="12" cy="12" r="4"></circle>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>IPM Viewer</h1>
+          <span class="badge">Clearing & Settlement Explorer</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="upload-new-btn" class="btn btn-secondary hidden">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Upload New File
+        </button>
+        <div class="loaded-file-info hidden" id="loaded-file-info">
+          <span class="file-name" id="display-file-name">file.ipm</span>
+          <span class="file-size-badge" id="display-file-tx-count">0 tx</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="app-main">
+      <!-- Upload Dropzone View -->
+      <section class="upload-section" id="upload-section">
+        <div class="upload-card" id="drop-zone">
+          <input type="file" id="file-input" accept=".ipm,*" class="file-hidden">
+          <div class="upload-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="64" height="64" class="upload-pulse-svg" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <h2>Import Clearing IPM File</h2>
+          <p class="upload-subtitle">Drag and drop your <span>.ipm</span> clearing file here, or click to browse</p>
+          <div class="upload-notes">
+            <p>Uses local pre-compiled <strong>ipm2json</strong> binary to convert Mastercard Clearing layout. Files are parsed securely on your machine.</p>
+          </div>
+          <button class="btn btn-primary" id="browse-btn">Browse Computer</button>
+        </div>
+
+        <div class="loading-overlay hidden" id="loading-overlay">
+          <div class="spinner-container">
+            <div class="double-bounce1"></div>
+            <div class="double-bounce2"></div>
+          </div>
+          <h3>Parsing Clearing File...</h3>
+          <p>Running ISO-8583 conversion and formatting EMV tags</p>
+        </div>
+      </section>
+
+      <!-- Dashboard & Viewer (Shown when file is loaded) -->
+      <section class="viewer-section hidden" id="viewer-section">
+        <!-- KPI Dashboard Panel -->
+        <div class="dashboard-kpis">
+          <div class="kpi-card">
+            <div class="kpi-icon total-tx-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">Total Transactions</span>
+              <h3 class="kpi-value" id="kpi-total-tx">-</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon volume-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">Clearing Presentments</span>
+              <h3 class="kpi-value" id="kpi-presentments">-</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon fees-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">Fee Collection Amount</span>
+              <h3 class="kpi-value" id="kpi-fees">-</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon unique-cards-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">Unique Cards</span>
+              <h3 class="kpi-value" id="kpi-unique-cards">-</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Charts & Distribution -->
+        <div class="dashboard-analytics">
+          <div class="analytics-card">
+            <h4>Card Brand & Scheme Distribution</h4>
+            <div id="card-scheme-chart" class="svg-chart-container">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <h4>Message Type (MTI) Distribution</h4>
+            <div id="mti-chart" class="svg-chart-container">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Log Container -->
+        <div class="data-log-container">
+          <!-- Filters Toolbar -->
+          <div class="toolbar">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="search-input" placeholder="Search by Merchant, PAN, RRN, ARN, Auth Code...">
+            </div>
+            
+            <div class="filters-group">
+              <div class="filter-select-wrapper">
+                <label for="filter-brand">Brand</label>
+                <select id="filter-brand">
+                  <option value="ALL">All Schemes</option>
+                  <option value="Mastercard">Mastercard</option>
+                  <option value="Visa">Visa</option>
+                  <option value="OTHER">Others</option>
+                </select>
+              </div>
+
+              <div class="filter-select-wrapper">
+                <label for="filter-mti">Message Type</label>
+                <select id="filter-mti">
+                  <option value="ALL">All MTIs</option>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <div class="filter-select-wrapper">
+                <label for="filter-mcc">Category</label>
+                <select id="filter-mcc">
+                  <option value="ALL">All Categories</option>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <div class="filter-select-wrapper">
+                <label for="filter-currency">Currency</label>
+                <select id="filter-currency">
+                  <option value="ALL">All Currencies</option>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+            </div>
+
+            <div class="toolbar-actions">
+              <button id="toggle-pan-btn" class="btn-toggle active" title="Toggle PAN Masking">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span>Mask PANs</span>
+              </button>
+              
+              <button id="export-json-btn" class="btn btn-secondary" title="Export Current List to JSON">
+                Export JSON
+              </button>
+
+              <button id="reset-filters-btn" class="btn btn-icon-only" title="Reset Filters">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Transaction List / Grid Table -->
+          <div class="table-scroll-wrapper">
+            <table class="transaction-table">
+              <thead>
+                <tr>
+                  <th>Scheme</th>
+                  <th>Card Number</th>
+                  <th>MTI & Type</th>
+                  <th>Merchant Name</th>
+                  <th>MCC / Category</th>
+                  <th>Date & Time</th>
+                  <th class="text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="transaction-rows">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+            
+            <div id="no-records-msg" class="no-records hidden">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <h3>No matching transactions found</h3>
+              <p>Try widening your search terms or resetting filters</p>
+            </div>
+          </div>
+
+          <!-- Pagination / Stats Status bar -->
+          <div class="table-footer-status">
+            <span id="footer-record-count">Showing 0 of 0 transactions</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Side Slide-Out detail Drawer -->
+    <aside class="detail-drawer" id="detail-drawer">
+      <div class="drawer-header">
+        <h3>Transaction Detail</h3>
+        <button class="btn-close" id="close-drawer-btn">&times;</button>
+      </div>
+
+      <div class="drawer-subheader" id="drawer-summary-header">
+        <div class="merchant-tag-brand">
+          <div class="scheme-avatar" id="detail-scheme-avatar">M</div>
+          <div>
+            <h2 id="detail-merchant-name">Haider Alsaadi Restaurant</h2>
+            <span id="detail-type-badge" class="type-badge">Clearing Presentment</span>
+          </div>
+        </div>
+        <div class="detail-main-amount" id="detail-main-amount">50,000 IQD</div>
+      </div>
+
+      <!-- Drawer Tabs -->
+      <div class="drawer-tabs">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="emv">EMV Tags (DE55)</button>
+        <button class="tab-btn" data-tab="raw">Raw ISO Fields</button>
+      </div>
+
+      <!-- Drawer Content -->
+      <div class="drawer-body">
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="tab-overview">
+          <div class="detail-group">
+            <h5>Core Transaction Info</h5>
+            <table class="detail-grid-table">
+              <tr>
+                <td>MTI</td>
+                <td class="font-mono text-bold" id="td-mti">1240</td>
+              </tr>
+              <tr>
+                <td>Card Scheme</td>
+                <td id="td-scheme">Mastercard</td>
+              </tr>
+              <tr>
+                <td>Primary Account Number (PAN)</td>
+                <td class="font-mono text-bold PAN-container">
+                  <span id="td-pan">5213720494333748</span>
+                  <button id="detail-reveal-pan-btn" class="pan-reveal-link">Reveal</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Function Code (DE24)</td>
+                <td id="td-de24">200 (First Presentment)</td>
+              </tr>
+              <tr>
+                <td>Approval Code (DE38)</td>
+                <td class="font-mono text-bold" id="td-de38">066767</td>
+              </tr>
+              <tr>
+                <td>Retrieval Reference Num (DE37)</td>
+                <td class="font-mono" id="td-de37">614023310047</td>
+              </tr>
+              <tr>
+                <td>Acquirer Reference Num (DE31)</td>
+                <td class="font-mono text-xs break-all" id="td-de31">25311866140140233100478</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="detail-group">
+            <h5>Merchant & Terminal Data</h5>
+            <table class="detail-grid-table">
+              <tr>
+                <td>Merchant Name</td>
+                <td id="td-merchant-name">Haider Alsaadi Restaurant</td>
+              </tr>
+              <tr>
+                <td>Location</td>
+                <td id="td-location">Sadr City, IQ</td>
+              </tr>
+              <tr>
+                <td>Merchant Category (DE26)</td>
+                <td>
+                  <span id="td-mcc" class="mcc-label-badge">5812</span>
+                  <span id="td-mcc-desc">Eating Places, Restaurants</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Merchant ID (DE42)</td>
+                <td class="font-mono" id="td-de42">79001067</td>
+              </tr>
+              <tr>
+                <td>Terminal ID (DE41)</td>
+                <td class="font-mono" id="td-de41">00001205</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="detail-group">
+            <h5>Financials & Dates</h5>
+            <table class="detail-grid-table">
+              <tr>
+                <td>Clearing Amount (DE4)</td>
+                <td class="text-bold" id="td-amount">50,000 د.ع</td>
+              </tr>
+              <tr>
+                <td>Clearing Currency (DE49)</td>
+                <td id="td-currency">368 (IQD)</td>
+              </tr>
+              <tr>
+                <td>Expiration Date (DE14)</td>
+                <td class="font-mono" id="td-de14">2911 (Nov 2029)</td>
+              </tr>
+              <tr>
+                <td>Local Transmission Date (DE12)</td>
+                <td id="td-de12">May 26, 2020 23:18:46</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- EMV Tags Tab -->
+        <div class="tab-content" id="tab-emv">
+          <div class="emv-status-container" id="emv-tags-empty" class="hidden">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <p>No EMV ICC data (DE55) found in this transaction</p>
+          </div>
+          <div id="emv-tags-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Raw ISO Fields Tab -->
+        <div class="tab-content" id="tab-raw">
+          <pre class="raw-json-block"><code id="raw-json-code">{}</code></pre>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Overlay back-shadow for drawer -->
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
